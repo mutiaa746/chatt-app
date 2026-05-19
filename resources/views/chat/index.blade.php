@@ -191,6 +191,7 @@
     </main>
 </div>
 
+<!-- Modal Buat Grup -->
 <div class="modal-backdrop" id="modalGroup" style="display:none">
     <div class="modal">
         <h3>Buat Grup Baru</h3>
@@ -199,8 +200,21 @@
         <label>Pilih Anggota</label>
         <div class="member-list" id="memberList"></div>
         <div class="modal-actions">
-            <button class="btn-secondary" onclick="closeModal()">Batal</button>
+            <button class="btn-secondary" onclick="closeModal('modalGroup')">Batal</button>
             <button class="btn-primary" onclick="submitCreateGroup()">Buat Grup</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Anggota -->
+<div class="modal-backdrop" id="modalAddMember" style="display:none">
+    <div class="modal">
+        <h3>Tambah Anggota Grup</h3>
+        <label>Pilih Pengguna</label>
+        <div class="member-list" id="addMemberList"></div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('modalAddMember')">Batal</button>
+            <button class="btn-primary" onclick="submitAddMember()">Tambah</button>
         </div>
     </div>
 </div>
@@ -305,8 +319,7 @@ async function openChat(type, id, name, isOnline, statusText) {
     currentId   = id;
 
     document.getElementById('chatEmpty').style.display = 'none';
-    const main = document.getElementById('chatMain');
-    main.style.display = 'flex';
+    document.getElementById('chatMain').style.display = 'flex';
 
     const avatarClass = type==='group' ? 'avatar-circle group-av' : 'avatar-circle';
     document.getElementById('chatHeader').innerHTML = `
@@ -317,7 +330,13 @@ async function openChat(type, id, name, isOnline, statusText) {
         <div class="chat-header-info">
             <div class="chat-header-name">${escHtml(name)}</div>
             <div class="chat-header-status ${isOnline&&type==='user'?'is-online':''}">${isOnline&&type==='user'?'Online':escHtml(statusText)}</div>
-        </div>`;
+        </div>
+        ${type==='group'?`
+        <button class="btn-icon" onclick="openAddMember()" title="Tambah Anggota">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+            </svg>
+        </button>`:''}`;
 
     const wrap = document.getElementById('messagesWrap');
     wrap.innerHTML = '<div class="spinner" style="margin-top:40px;"></div>';
@@ -410,8 +429,6 @@ function openCreateGroup() {
     document.getElementById('modalGroup').style.display = 'flex';
 }
 
-function closeModal() { document.getElementById('modalGroup').style.display = 'none'; }
-
 async function submitCreateGroup() {
     const name    = document.getElementById('groupName').value.trim();
     const checked = [...document.querySelectorAll('#memberList input:checked')].map(c => parseInt(c.value));
@@ -425,13 +442,55 @@ async function submitCreateGroup() {
     if (res.ok) {
         const group = await res.json();
         allGroups.push(group);
-        closeModal();
+        closeModal('modalGroup');
         switchTab('groups', document.querySelectorAll('.tab-btn')[1]);
         showToast(`Grup "${name}" berhasil dibuat!`);
     } else {
         showToast('Gagal membuat grup');
     }
 }
+
+function openAddMember() {
+    const group = allGroups.find(g => g.id === currentId);
+    const existingIds = group ? group.members.map(m => m.id) : [];
+    const available = allUsers.filter(u => !existingIds.includes(u.id));
+
+    if (!available.length) {
+        showToast('Semua pengguna sudah menjadi anggota');
+        return;
+    }
+
+    document.getElementById('addMemberList').innerHTML = available.map(u => `
+        <div class="member-item">
+            <input type="checkbox" id="am${u.id}" value="${u.id}">
+            <label for="am${u.id}">${escHtml(u.name)}</label>
+        </div>`).join('');
+    document.getElementById('modalAddMember').style.display = 'flex';
+}
+
+async function submitAddMember() {
+    const checked = [...document.querySelectorAll('#addMemberList input:checked')].map(c => parseInt(c.value));
+    if (!checked.length) return showToast('Pilih minimal 1 anggota');
+
+    const res = await fetch(`/groups/${currentId}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+        body: JSON.stringify({ members: checked })
+    });
+
+    if (res.ok) {
+        const group = await res.json();
+        const idx = allGroups.findIndex(g => g.id === currentId);
+        if (idx !== -1) allGroups[idx] = group;
+        closeModal('modalAddMember');
+        renderContactList();
+        showToast('Anggota berhasil ditambahkan!');
+    } else {
+        showToast('Gagal menambahkan anggota');
+    }
+}
+
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
 function scrollToBottom() {
     const wrap = document.getElementById('messagesWrap');

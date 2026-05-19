@@ -191,4 +191,31 @@ class ChatController extends Controller
 
         return response()->json($users);
     }
+    public function addGroupMember(Request $request, Group $group)
+{
+    if (!$group->members->contains(Auth::id())) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    $request->validate([
+        'members'   => 'required|array|min:1',
+        'members.*' => 'exists:users,id',
+    ]);
+
+    $existingIds = $group->members->pluck('id')->toArray();
+    $newMembers  = array_diff($request->members, $existingIds);
+
+    if (empty($newMembers)) {
+        return response()->json(['error' => 'Semua user sudah menjadi anggota'], 422);
+    }
+
+    $group->members()->attach($newMembers);
+    $group->load('members');
+
+    return response()->json([
+        'id'      => $group->id,
+        'name'    => $group->name,
+        'members' => $group->members->map(fn($m) => ['id' => $m->id, 'name' => $m->name])->values(),
+    ]);
+}
 }

@@ -18,6 +18,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/groups/{group}/messages',  [ChatController::class, 'getGroupMessages']);
     Route::post('/groups/{group}/messages', [ChatController::class, 'sendGroupMessage']);
     Route::post('/groups',                  [ChatController::class, 'createGroup']);
+    Route::post('/groups/{group}/members',  [ChatController::class, 'addGroupMember']);
 
     Route::post('/status', [ChatController::class, 'updateStatus']);
 });
