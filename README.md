@@ -1,137 +1,288 @@
-# 🟢 Realtime Chat App — Panduan Instalasi
+md
+# 🟢 Realtime Chat App — Laravel + Socket.IO
 
-## Fitur
-- ✅ Bubble chat kiri/kanan (gaya WhatsApp)
-- ✅ Indikator Online / Offline + Last seen
-- ✅ Chat Private (1-on-1)
-- ✅ Chat Grup
-- ✅ Realtime (pesan masuk tanpa refresh)
-- ✅ Pesan tersimpan di database (tidak hilang saat refresh)
+Aplikasi chat realtime berbasis **Laravel 13**, **Node.js**, dan **Socket.IO** yang mendukung percakapan pribadi antar pengguna dengan tampilan modern seperti aplikasi chat pada umumnya.
+
+# ✨ Fitur Utama
+
+- ✅ Login & Register User
+- ✅ Realtime Chat (tanpa refresh)
+- ✅ Private Chat (1-on-1)
+- ✅ Bubble Chat kiri & kanan
+- ✅ Sidebar daftar user
+- ✅ Riwayat chat tersimpan di database
+- ✅ Chat tetap ada setelah refresh
+- ✅ Multi User Login
 - ✅ Logout
-- ✅ Notifikasi unread badge
+- ✅ Responsive UI sederhana
 
----
+# 🛠️ Teknologi yang Digunakan
 
-## 📁 Salin file-file ini ke project Laravel kamu
+## Backend
+- Laravel 13
+- PHP 8+
+- MySQL
 
+## Frontend
+- Blade Template
+- Vite
+- JavaScript
+
+## Realtime Server
+- Node.js
+- Express.js
+- Socket.IO
+
+# 📦 Package yang Digunakan
+
+## Composer
+bash
+composer require laravel/breeze
+
+## NPM
+```bash
+npm install
+npm install express socket.io cors socket.io-client
 ```
+
+# 📁 Struktur Project
+
+```text
 app/
-  Events/
-    MessageSent.php         → salin ke project
-    UserStatusChanged.php   → salin ke project
-  Http/Controllers/
-    ChatController.php      → salin ke project
-  Models/
-    Message.php             → salin ke project
-    Group.php               → salin ke project
-    User.php                → REPLACE file User.php lama
-
-database/migrations/
-  2026_05_17_000001_create_messages_table.php
-  2026_05_17_000002_create_groups_table.php
-  2026_05_17_000003_add_online_status_to_users.php
-
+ ├── Http/Controllers/
+ │     └── ChatController.php
+ │
+ ├── Models/
+ │     ├── Message.php
+ │     └── User.php
+ │
 resources/
-  views/chat/index.blade.php
-  js/app.js                 → REPLACE app.js lama
+ ├── views/
+ │     └── dashboard.blade.php
+ │
+ └── js/
+       └── app.js
 
 routes/
-  web.php                   → REPLACE web.php lama
-  channels.php              → REPLACE channels.php lama
+ └── web.php
+
+database/
+ └── migrations/
 ```
 
----
+# ⚙️ Cara Instalasi
 
-## ⚙️ Langkah-langkah
+## 1. Clone Repository
 
-### 1. Install package yang dibutuhkan
+bash
+git clone https://github.com/username/laravel-chat-app.git
+
+Masuk ke folder project:
+
+bash
+cd laravel-chat-app
+
+
+# 2. Install Dependency Laravel
+
+bash
+composer install
+
+# 3. Install Dependency Node.js
+bash
+npm install
+
+
+Install package realtime:
+bash
+npm install express socket.io cors socket.io-client
+
+
+# 4. Setup Environment
+
+Copy file `.env`
+
+## Windows
 ```bash
-composer require pusher/pusher-php-server
-npm install --save-dev laravel-echo pusher-js
+copy .env.example .env
 ```
 
-### 2. Daftar akun Pusher GRATIS
-1. Buka https://pusher.com → Sign Up (gratis)
-2. Buat app baru → pilih cluster **mt1** (Asia)
-3. Copy **App ID, Key, Secret, Cluster**
+## Linux / MacOS
+bash
+cp .env.example .env
 
-### 3. Update .env
-Buka file `.env` dan isi:
+Generate application key:
+
+```bash
+php artisan key:generate
+
+# 5. Konfigurasi Database
+
+Buat database baru, contoh:
+
+```text
+chat_app
+```
+
+Lalu edit file `.env`
+
 ```env
-BROADCAST_DRIVER=pusher
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=chat_app
+DB_USERNAME=root
+DB_PASSWORD=
 
-PUSHER_APP_ID=isi-app-id-kamu
-PUSHER_APP_KEY=isi-app-key-kamu
-PUSHER_APP_SECRET=isi-app-secret-kamu
-PUSHER_APP_CLUSTER=mt1
 
-VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
-VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
-```
+# 6. Jalankan Migration
 
-### 4. Uncomment BroadcastServiceProvider
-Buka `config/app.php`, cari dan uncomment:
-```php
-App\Providers\BroadcastServiceProvider::class,
-```
-
-### 5. Jalankan migration
-```bash
+bash
 php artisan migrate
-```
 
-> Jika error karena urutan foreign key (groups belum ada saat messages dibuat),
-> jalankan migration groups dulu:
-> ```bash
-> php artisan migrate --path=database/migrations/2026_05_17_000002_create_groups_table.php
-> php artisan migrate
-> ```
+# 7. Jalankan Project
 
-### 6. Build assets
-```bash
-npm run dev
-# atau untuk production:
-npm run build
-```
+Project membutuhkan 3 terminal aktif.
 
-### 7. Jalankan server
-```bash
+
+## Terminal 1 — Laravel Server
+
+bash
 php artisan serve
-```
 
-Buka http://127.0.0.1:8000
 
----
+## Terminal 2 — Vite
 
-## 🔧 Troubleshooting
+bash
+npm run dev
 
-### Pesan tidak realtime (tidak masuk tanpa refresh)
-- Pastikan `.env` sudah diisi dengan key Pusher yang benar
-- Jalankan `npm run dev` di terminal terpisah
-- Cek di browser console apakah ada error Pusher
+Jika menggunakan PowerShell dan muncul error execution policy:
 
-### Akun lain tidak bisa kirim pesan
-- Pastikan route `/messages` ada di `web.php`
-- Pastikan user sudah login (middleware `auth`)
+powershell
+npm.cmd run dev
 
-### Error "Column not found: last_seen_at"
-- Jalankan `php artisan migrate` lagi
+## Terminal 3 — Socket.IO Server
 
-### Chat hilang saat refresh
-- Chat TIDAK akan hilang — tersimpan di database SQLite/MySQL
-- Pastikan migration sudah dijalankan
+bash
+npm start
 
----
+Jika menggunakan PowerShell:
 
-## 📦 Package yang diinstall
-```json
-{
-  "require": {
-    "pusher/pusher-php-server": "^7.2"
-  },
-  "devDependencies": {
-    "laravel-echo": "^1.15",
-    "pusher-js": "^8.4"
-  }
-}
-```
+powershell
+npm.cmd start
+
+
+# 🚀 Cara Menggunakan
+
+## 1. Jalankan aplikasi
+
+Buka browser:
+`text
+http://127.0.0.1:8000
+
+
+## 2. Register akun pertama
+
+Contoh:
+
+| Name | Email |
+|---|---|
+| Mutia | mutia@gmail.com |
+
+
+## 3. Buka Incognito / Private Window
+
+Shortcut Chrome / Edge:
+
+text
+CTRL + SHIFT + N
+
+## 4. Register akun kedua
+
+Contoh:
+
+| Name | Email |
+|---|---|
+| Zaskia | zaskia@gmail.com |
+
+## 5. Login menggunakan akun berbeda
+
+- Browser biasa → akun pertama
+- Incognito → akun kedua
+
+## 6. Mulai Chat
+
+- Klik user pada sidebar
+- Ketik pesan
+- Klik tombol **Send**
+- Pesan akan muncul realtime tanpa refresh 🎉
+
+# 💬 Fitur Realtime
+
+Socket.IO digunakan untuk:
+- mengirim pesan realtime
+- menerima pesan realtime
+- komunikasi antar browser
+- update chat tanpa reload halaman
+
+# 🗄️ Database
+
+## Tabel `users`
+Digunakan untuk menyimpan data akun user.
+
+## Tabel `messages`
+Digunakan untuk menyimpan:
+- sender
+- receiver
+- isi pesan
+- timestamp chat
+
+ 🧩 Troubleshooting
+
+## Error: `npm.ps1 cannot be loaded`
+
+Gunakan:
+
+powershell
+npm.cmd run dev
+
+atau:
+
+powershell
+npm.cmd start
+
+## Error: `Port 5173 is in use`
+
+Vite otomatis pindah port, misalnya:
+
+text
+http://localhost:5174
+
+## Chat tidak realtime
+
+Pastikan:
+- `npm start` berjalan
+- `php artisan serve` berjalan
+- `npm run dev` berjalan
+
+## Chat hilang setelah refresh
+
+Pastikan:
+- migration sudah dijalankan
+- route `/save-message` sudah ada
+- tabel `messages` tersedia di database
+
+# 📸 Tampilan Aplikasi
+
+Fitur tampilan:
+- Sidebar daftar user
+- Bubble chat modern
+- Bubble kanan untuk user sendiri
+- Bubble kiri untuk lawan chat
+- Input pesan realtime
+
+# 👨‍💻 Author
+
+Mutia Sitompul 
+Project Realtime Chat App Laravel + Socket.IO
+
