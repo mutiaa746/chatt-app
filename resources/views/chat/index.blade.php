@@ -9,24 +9,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-            --bg-app:        #0f1117;
-            --bg-sidebar:    #161b22;
-            --bg-chat:       #0d1117;
-            --bg-bubble-me:  #2ea043;
-            --bg-bubble-you: #21262d;
-            --accent:        #2ea043;
-            --accent-light:  #3fb950;
-            --text-primary:  #e6edf3;
-            --text-secondary:#8b949e;
-            --text-muted:    #484f58;
-            --border:        #30363d;
-            --online:        #3fb950;
-            --offline:       #8b949e;
-            --hover:         #1c2128;
-            --active:        #1f2937;
-            --danger:        #f85149;
-        }
+     :root {
+    --bg-app:        #f5f5f5;
+    --bg-sidebar:    #ffffff;
+    --bg-chat:       #ece5dd;
+    --bg-bubble-me:  #dcf8c6;
+    --bg-bubble-you: #ffffff;
+    --accent:        #075e54;
+    --accent-light:  #128c7e;
+    --text-primary:  #111b21;
+    --text-secondary:#667781;
+    --text-muted:    #aebac1;
+    --border:        #e9edef;
+    --online:        #25d366;
+    --offline:       #aebac1;
+    --hover:         #f0f2f5;
+    --active:        #e9edef;
+    --danger:        #f15c6d;
+    }
         html, body { height: 100%; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-app); color: var(--text-primary); overflow: hidden; }
         .app { display: flex; height: 100vh; }
         .sidebar { width: 320px; min-width: 320px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
